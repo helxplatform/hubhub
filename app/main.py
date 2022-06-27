@@ -3,6 +3,7 @@ import os
 import yaml
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.logger import logger
 from pydantic import BaseModel,BaseSettings
 from typing import List,Dict,Any,AnyStr,Union
@@ -120,6 +121,8 @@ class Resolver(threading.Thread):
       return self._current
 
 app = FastAPI()
+app.add_middleware(CORSMiddleware,allow_origins=['*'],allow_methods=['*'],allow_headers=['*'])
+
 settings = Settings()
 
 def init_settings():
