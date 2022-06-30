@@ -1,9 +1,12 @@
+import hashlib
+
 from github import Github
 from github.Organization import Organization
 
 class GithubOps:
    def __init__(self,access_token):
       self._gh_handle = Github(login_or_token=access_token)
+      self._commit_cache = {}
 
    def get_repos(self):
       repo_names = []
@@ -29,3 +32,20 @@ class GithubOps:
          tag_list[tag.name] = tag
          tag_names.append(tag.name)
       return tag_names,tag_list
+
+   def cache_commits(self,repo,commit_list):
+      for commit_id in commit_list:
+         key = commit_id + repo.name
+         key_hash = hashlib.md5(key.encode()).hexdigest()
+         if self._commit_cache.get(key_hash,None) == None:
+            try:
+               commit = repo.get_commit(commit_id)
+               if commit != None:
+                  self._commit_cache[key_hash] = commit
+            except:
+               pass
+
+   def get_commit(self,repo_name,commit_id):
+      key = commit_id + repo_name
+      key_hash = hashlib.md5(key.encode()).hexdigest()
+      return self._commit_cache.get(key_hash,None)
